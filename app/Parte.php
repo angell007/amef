@@ -24,7 +24,7 @@ class Parte extends Model
 
     public function funcionsubsistemas()
     {
-        return $this->hasMany(Funcionsubsistema::class, 'parte_id');
+        return $this->hasMany(Funcionsubsistema::class);
     }
 
 }

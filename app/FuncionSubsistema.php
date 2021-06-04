@@ -22,24 +22,8 @@ class FuncionSubsistema extends Model
         return $this->belongsTo(Parte::class);
     }
 
-    public function modofalla()
+    public function funciones()
     {
-        return $this->hasMany(ModoFalla::class, 'parte_id');
-    }
-    public function efectofalla()
-    {
-        return $this->hasMany(EfectoFalla::class, 'parte_id');
-    }
-    public function causafalla()
-    {
-        return $this->hasMany(CausaFalla::class, 'parte_id');
-    }
-    public function fallafuncional()
-    {
-        return $this->hasMany(FallaFuncional::class, 'parte_id');
-    }
-    public function actividades()
-    {
-        return $this->hasMany(Actividad::class, 'parte_id');
+        return $this->hasMany(Funcion::class);
     }
 }

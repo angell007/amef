@@ -17,6 +17,7 @@ class CreateActividadsTable extends Migration
             $table->id();
             $table->longText('nombre')->nullable();
             $table->string('descripcion')->nullable();
+            $table->unsignedBigInteger('parte_id')->nullable();
             $table->timestamps();
         });
     }

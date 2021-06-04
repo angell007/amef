@@ -16,4 +16,9 @@ class CausaFalla extends Model
     {
         return $this->attributes['nombre'];
     }
+
+    public function efectofalla()
+    {
+        return $this->hasMany(EfectoFalla::class);
+    }
 }

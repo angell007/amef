@@ -16,4 +16,9 @@ class EfectoFalla extends Model
     {
         return $this->attributes['nombre'];
     }
+
+    public function actividades()
+    {
+        return $this->hasMany(Actividad::class);
+    }
 }

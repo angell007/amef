@@ -16,4 +16,9 @@ class ModoFalla extends Model
     {
         return $this->attributes['nombre'];
     }
+
+    public function causafalla()
+    {
+        return $this->hasMany(CausaFalla::class);
+    }
 }

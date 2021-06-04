@@ -16,4 +16,9 @@ class FallaFuncional extends Model
     {
         return $this->attributes['nombre'];
     }
+
+    public function modofalla()
+    {
+        return $this->hasMany(ModoFalla::class);
+    }
 }

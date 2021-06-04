@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Componente;
+use App\FallaFuncional;
+use App\Funcion;
 use App\FuncionSubsistema;
 use App\Parte;
 use App\Sistema;
@@ -15,94 +17,79 @@ class PrintController extends Controller
     {
         try {
 
-            $parte = Parte::with(['funcionsubsistemas','funcion'])->find(request()->get('Id'));
+            $parte = Parte::with(
+                [
+                    'funcionsubsistemas',
+                    'funcionsubsistemas.funciones',
+                    'funcionsubsistemas.funciones.fallafuncional',
+                    'funcionsubsistemas.funciones.fallafuncional.modofalla',
+                    'funcionsubsistemas.funciones.fallafuncional.modofalla.causafalla',
+                    'funcionsubsistemas.funciones.fallafuncional.modofalla.causafalla.efectofalla',
+                    'funcionsubsistemas.funciones.fallafuncional.modofalla.causafalla.efectofalla.actividades'
+                ]
+            )->find(request()->get('Id'));
+
 
             $spreadsheet = IOFactory::load('./operacionales/base.xlsx');
             $worksheet = $spreadsheet->getActiveSheet();
 
+            $worksheet->getCell('A11')->setValue($parte->nombre);
+
             $casillaFuncionSub = 12;
-            
-            foreach ($parte->funcionsubsistemas as $index => $funcionsubsistema) {
+
+            $countMax1 = 0;
+            $countMax2 = 0;
+            $countMax3 = 0;
+            $countMax4 = 0;
+            $countMax5 = 0;
+            $countMax6 = 0;
+            $countMax7 = 0;
 
 
-                    $countmodoFalla = 0;
-                    $countefectofalla = 0;
-                    $countcausafalla = 0;
-                    $countfallafuncional = 0;
-                    $countactividades = 0;
-                    $countmax = 0;
+            foreach ($parte->funcionsubsistemas as $funcionsubsistema) {
 
-                    $funcionsubsistemax = FuncionSubsistema::with(
-                    [
-                    'modofalla',
-                    'efectofalla',
-                    'causafalla',
-                    'fallafuncional',
-                    'actividades'
-                    ]
-                    )->find($funcionsubsistema->id);
+                $casilla1 = 12 + $countMax3;
+                $worksheet->getCell('A' . $casilla1)->setValue($funcionsubsistema->nombre);
+                $countMax1 = count($funcionsubsistema->funciones);
 
-                    if ($countmax < count($funcionsubsistemax->efectofalla)) {
-                        $countmax = count($funcionsubsistemax->efectofalla);
-                    }
-                    if ($countmax < count($funcionsubsistemax->fallafuncional)) {
-                        $countmax = count($funcionsubsistemax->fallafuncional);
-                    }
-                    if ($countmax < count($funcionsubsistemax->modofalla)) {
-                        $countmax = count($funcionsubsistemax->modofalla);
-                    }
-                    if ($countmax < count($funcionsubsistemax->fallafuncional)) {
-                        $countmax = count($funcionsubsistemax->fallafuncional);
-                    }
-                    if ($countmax < count($funcionsubsistemax->actividades)) {
-                        $countmax = count($funcionsubsistemax->actividades);
-                    }
+                foreach ($funcionsubsistema->funciones as $funcion) {
 
-                $worksheet->getCell('A' . $casillaFuncionSub)->setValue($funcionsubsistema->nombre);
-                $worksheet->getCell('B11')->setValue($parte->nombre);
-                $worksheet->getCell('C' . $casillaFuncionSub)->setValue($parte->funcion->nombre);
+                    $casilla2 = 12 + $countMax3;
+                    $worksheet->getCell('B' . $casilla2)->setValue($funcion->nombre);
+                    $countMax2 += count($funcion->fallafuncional);
 
-                if (isset($funcionsubsistemax->fallafuncional)) {
-                    foreach ($funcionsubsistemax->fallafuncional as $index => $modo) {
-                        $casilla = $casillaFuncionSub + (int)$index;
-                        $worksheet->getCell('F' . $casilla)->setValue($modo->nombre);
-                    }
-                }
+                    foreach ($funcion->fallafuncional as $ffuncional) {
 
-                    if (isset($funcionsubsistemax->modofalla)) {
-                    foreach ($funcionsubsistemax->modofalla as $index => $modo) {
-                        $casilla = $casillaFuncionSub + (int)$index;
-                        $worksheet->getCell('H' . $casilla)->setValue($modo->nombre);
-                    }
-                }
+                        $casilla3 = 12 + $countMax3;
+                        $worksheet->getCell('D' . $casilla3)->setValue($ffuncional->nombre);
+                        $countMax3 += count($ffuncional->modofalla);
 
-                if (isset($funcionsubsistemax->causafalla)) {
-                    foreach ($funcionsubsistemax->causafalla as $index => $modo) {
-                        $casilla = $casillaFuncionSub + (int)$index;
-                        $worksheet->getCell('J' . $casilla)->setValue($modo->nombre);
+                        foreach ($ffuncional->modofalla as $modo) {
+                            $casilla4 = 12 + $countMax4;
+                            $worksheet->getCell('E' . $casilla4)->setValue($modo->nombre);
+                            $countMax4 += count($modo->causafalla);
+
+                            foreach ($modo->causafalla as $causa) {
+                                $casilla5 = 12 + $countMax5;
+                                $worksheet->getCell('G' . $casilla5)->setValue($causa->nombre);
+                                $countMax5 += count($causa->efectofalla);
+
+                                foreach ($causa->efectofalla as $efecto) {
+                                    $casilla6 = 12 + $countMax6;
+                                    $worksheet->getCell('H' . $casilla6)->setValue($efecto->nombre);
+                                    $countMax6 += count($efecto->actividades);
+
+                                    foreach ($efecto->actividades as $actividades) {
+                                        $casilla7 = 12 + $countMax7;
+                                        $worksheet->getCell('I' . $casilla7)->setValue($actividades->nombre);
+                                        $countMax7 += 1;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
-
-                if (isset($funcionsubsistemax->efectofalla)) {
-                    foreach ($funcionsubsistemax->efectofalla as $index => $modo) {
-                        $casilla = $casillaFuncionSub + (int)$index;
-                        $worksheet->getCell('L' . $casilla)->setValue($modo->nombre);
-                    }
-                }
-
-                if (isset($funcionsubsistemax->actividades)) {
-                    foreach ($funcionsubsistemax->actividades as $index => $modo) {
-                        $casilla = $casillaFuncionSub + (int)$index;
-                        $worksheet->getCell('N' . $casilla)->setValue($modo->nombre);
-                    }
-                }
-
-                $casillaFuncionSub = 12 + (int)$index + $countmax ;
-                
             }
-
-
-            
 
             $writer = IOFactory::createWriter($spreadsheet, 'Xls');
             $writer->save("./operacionales/" . 'autoparte' . ".xls");

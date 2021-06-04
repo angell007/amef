@@ -16,4 +16,9 @@ class Funcion extends Model
     {
         return $this->attributes['nombre'];
     }
+
+    public function fallafuncional()
+    {
+        return $this->hasMany(FallaFuncional::class);
+    }
 }
